@@ -26,6 +26,9 @@ MAX_RETRIES=5
 
 # Reconnect Interval (in Milliseconds)
 RECONNECT_INTERVAL=5000
+
+# Your Bot endpoint url
+BOT_URL=your_bot_script_endpoint
 ```
 
 ## Usage
