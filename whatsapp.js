@@ -14,6 +14,10 @@ import { toDataURL } from 'qrcode'
 import __dirname from './dirname.js'
 import response from './response.js'
 
+import axios from 'axios';
+import qs from 'qs';
+
+
 const sessions = new Map()
 const retries = new Map()
 
@@ -100,17 +104,43 @@ const createSession = async (sessionId, isLegacy = false, res = null) => {
             if (isLegacy) {
                 await wa.chatRead(message.key, 1)
             } else {
-                // console.log("-------------------------------START-------------------------------");
-                // console.log(obj.conversation);
-                // console.log("-------------------------------END-------------------------------");
-                // console.log(sessionId);
-                // sessionId , obj.conversation
                 await wa.sendReadReceipt(message.key.remoteJid, message.key.participant, [message.key.id])
 
-                
 
-                //await wa.sendMessage(message.key.remoteJid, { text: 'Hello there!' })
+                if(obj.conversation != undefined) {
 
+                    const httpdata = qs.stringify({
+                        'sessionID': sessionId,
+                        'message': obj.conversation
+                    });
+
+                    const BOT_URL = process.env.BOT_URL
+
+                    var httpconfig = {
+                        method: 'post',
+                        url: BOT_URL,
+                        headers: {},
+                        data: httpdata
+                    };
+    
+                    axios(httpconfig).then(function (response) {
+                            console.log(JSON.stringify(response.data));
+                            const recivemsg = JSON.stringify(response.data)
+
+                            if(recivemsg) {
+
+                                if(JSON.parse(recivemsg).success == false){
+                                    wa.sendMessage(message.key.remoteJid, { text: 'Something went wrong! Try again later\n\n Error Code : 500' })
+                                } else {
+                                    wa.sendMessage(message.key.remoteJid, { text: recivemsg })
+                                }
+                            }
+
+                        }).catch(function (error) {
+                            console.log(error);
+                            wa.sendMessage(message.key.remoteJid, { text: 'Something went wrong! Try again later' })
+                        });
+                }
             }
         }
     })
