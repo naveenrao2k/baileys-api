@@ -88,9 +88,11 @@ const createSession = async (sessionId, isLegacy = false, res = null) => {
     })
 
     // Automatically read incoming messages, uncomment below codes to enable this behaviour
-    /*
+
     wa.ev.on('messages.upsert', async (m) => {
         const message = m.messages[0]
+        const conversation = JSON.stringify(message.message, undefined, 2)
+        const obj = JSON.parse(conversation)
 
         if (!message.key.fromMe && m.type === 'notify') {
             await delay(1000)
@@ -98,11 +100,22 @@ const createSession = async (sessionId, isLegacy = false, res = null) => {
             if (isLegacy) {
                 await wa.chatRead(message.key, 1)
             } else {
+                // console.log("-------------------------------START-------------------------------");
+                // console.log(obj.conversation);
+                // console.log("-------------------------------END-------------------------------");
+                // console.log(sessionId);
+                // sessionId , obj.conversation
                 await wa.sendReadReceipt(message.key.remoteJid, message.key.participant, [message.key.id])
+
+                
+
+                //await wa.sendMessage(message.key.remoteJid, { text: 'Hello there!' })
+
             }
         }
     })
-    */
+
+
 
     wa.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect } = update
